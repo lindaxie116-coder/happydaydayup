@@ -621,12 +621,13 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-5',
             max_tokens: 1000,
             messages: [{ role: 'user', content: prompt }]
           })
         });
         const data = await res.json();
+        if (!data.content) throw new Error(JSON.stringify(data));
         const text = data.content.map(b => b.text || '').join('');
         const parts = text.split('---');
         document.getElementById('plan-diagnosis').textContent = parts[0] ? parts[0].trim() : text;
@@ -636,7 +637,7 @@
       } catch(e) {
         document.getElementById('plan-loading').style.display = 'none';
         document.getElementById('plan-idle').style.display = 'block';
-        document.getElementById('plan-error').textContent = '生成失败，请稍后再试 😢';
+        document.getElementById('plan-error').textContent = '生成失败：' + e.message;
         document.getElementById('plan-error').style.display = 'block';
       }
     }
