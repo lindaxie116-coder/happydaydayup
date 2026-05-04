@@ -1,3 +1,5 @@
+export const config = { api: { bodyParser: true } };
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -9,6 +11,7 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
   try {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -16,10 +19,11 @@ export default async function handler(req, res) {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify(req.body)
+      body: JSON.stringify(body)
     });
-    const data = await response.json();
-    res.status(response.status).json(data);
+    const text = await response.text();
+    res.setHeader('Content-Type', 'application/json');
+    res.status(response.status).send(text);
   } catch (e) {
     res.status(500).json({ error: 'Request failed', detail: e.message });
   }
