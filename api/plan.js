@@ -4,27 +4,30 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  如果 (请求方法 === 'OPTIONS') 返回 res.status(200).end();
+  如果 (请求方法 !== 'POST') 返回 res.status(405).json({ error: '方法不允许' });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  如果 (!apiKey) 返回 res.status(500).json({ error: 'API 密钥未配置' });
 
-  try {
+  尝试 {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const response = await fetch('https://openox.tech/v1/messages', {
-      method: 'POST',
-      headers: {
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      方法：'POST'，
+      标题：{
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
+        '授权': `Bearer ${apiKey}`
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify({
+        模型：'deepseek-chat'
+        max_tokens: 1000,
+        消息：正文.消息
+      })
     });
     const text = await response.text();
     res.setHeader('Content-Type', 'application/json');
     res.status(response.status).send(text);
   } catch (e) {
-    res.status(500).json({ error: 'Request failed', detail: e.message });
+    res.status(500).json({ error: '请求失败', detail: e.message });
   }
 }
