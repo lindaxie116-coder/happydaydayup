@@ -627,8 +627,8 @@
           })
         });
         const data = await res.json();
-        if (!data.content) throw new Error(JSON.stringify(data));
-        const text = data.content.map(b => b.text || '').join('');
+        if (!data.choices || !data.choices[0]) throw new Error(JSON.stringify(data));
+        const text = data.choices[0].message.content;
         const parts = text.split('---');
         document.getElementById('plan-diagnosis').textContent = parts[0] ? parts[0].trim() : text;
         document.getElementById('plan-advice').textContent = parts[1] ? parts[1].trim() : '';
